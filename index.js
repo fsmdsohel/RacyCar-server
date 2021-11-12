@@ -76,6 +76,8 @@ async function run() {
       }
     });
 
+    // Get A product
+
     app.get("/cars/:id", async (req, res) => {
       const id = req.params.id;
       if (ObjectId.isValid(id)) {
@@ -127,12 +129,45 @@ async function run() {
       const result = await ordersCollection.insertOne(doc);
       res.json(result);
     });
+    // Get All Order
+    app.get("/orders", async (req, res) => {
+      const cursor = await ordersCollection.find({});
+      const result = await cursor.toArray();
+      res.json(result);
+    });
+    // Get A Order
+    app.get("/order/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = {
+        _id: ObjectId(id),
+      };
+      const result = await ordersCollection.findOne(query);
+      res.json(result);
+    });
+
+    // Update Order
+    app.patch("/updateOrderStatus", async (req, res) => {
+      const { id, status } = req.body;
+      const filter = { _id: ObjectId(id) };
+      const option = { upsert: false };
+      const updateDoc = {
+        $set: {
+          status,
+        },
+      };
+      const result = await ordersCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.json(result);
+    });
 
     // Get Order
     app.get("/orders/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email };
-      console.log(query);
       const cursor = await ordersCollection.find(query);
       const result = await cursor.toArray();
       res.json(result);

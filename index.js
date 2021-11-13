@@ -67,7 +67,7 @@ async function run() {
 
     // Get limited cars
     app.get("/carshome", async (req, res) => {
-      const cursor = await carsCollection.find({}).limit(3);
+      const cursor = await carsCollection.find({}).limit(6);
       const result = await cursor.toArray();
       res.json(result);
     });

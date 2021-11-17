@@ -148,26 +148,37 @@ async function run() {
     app.put("/cars/:id", verifyToken, async (req, res) => {
       handleAdminRoute(req, res, async () => {
         const id = req.params.id;
-        if (ObjectId.isValid(id)) {
-          const { _id, ...rest } = req.body;
-          const options = { upsert: false };
-          const filter = {
-            _id: ObjectId(id),
-          };
-          const updateDoc = {
-            $set: rest,
-          };
-          const result = await carsCollection.updateOne(
-            filter,
-            updateDoc,
-            options
-          );
-          res.json(result);
-        } else {
+        const query = {
+          _id: ObjectId(id),
+        };
+        const result = await carsCollection.findOne(query);
+        if (result.main) {
           res.json({
             acknowledged: false,
-            message: "Please send valid product id!",
+            message: "You can edit only your added product!",
           });
+        } else {
+          if (ObjectId.isValid(id)) {
+            const { _id, ...rest } = req.body;
+            const options = { upsert: false };
+            const filter = {
+              _id: ObjectId(id),
+            };
+            const updateDoc = {
+              $set: rest,
+            };
+            const result = await carsCollection.updateOne(
+              filter,
+              updateDoc,
+              options
+            );
+            res.json(result);
+          } else {
+            res.json({
+              acknowledged: false,
+              message: "Please send valid product id!",
+            });
+          }
         }
       });
     });
